@@ -16,17 +16,11 @@ public class Main {
         int choice = view.promptChoice(List.of("GUI", "Console"));
         view.disposeView();
 
-        IAddressView addressView;
-        switch (choice) {
-            case 0:
-                addressView = new SwingAddressView();
-                break;
-            case 1:
-                addressView = new ConsoleAddressView();
-                break;
-            default:
-                throw new AssertionError("Invalid Choice");
-        }
+        IAddressView addressView = switch (choice) {
+            case 0 -> new SwingAddressView();
+            case 1 -> new ConsoleAddressView();
+            default -> throw new AssertionError("Invalid Choice");
+        };
 
         try {
             AddressApp app = new AddressApp(addressView, new AddressInfoSerializer(OUTPUT_FILE));
