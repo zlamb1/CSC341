@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class AddressInfoSerializer extends MapFileSerializer<String, AddressInfo> {
     public AddressInfoSerializer(String outputFilePath) {
@@ -15,10 +16,10 @@ public class AddressInfoSerializer extends MapFileSerializer<String, AddressInfo
 
     @Override
     protected void serialize(PrintWriter writer, Map<String, AddressInfo> map) {
-        final int[] count = {0};
+        AtomicInteger count = new AtomicInteger(0);
         map.forEach((k, v) -> {
             writer.print(v.toCSVRow());
-            if (count[0]++ != map.size() - 1) {
+            if (count.getAndIncrement() < map.size() - 1) {
                 writer.print("\n");
             }
         });

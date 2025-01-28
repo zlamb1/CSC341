@@ -11,8 +11,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SwingView extends AbstractView {
-    protected static final int FRAME_WIDTH = 500;
-    protected static final int FRAME_HEIGHT = 500;
+    protected static final int FRAME_WIDTH = 1280;
+    protected static final int FRAME_HEIGHT = 720;
 
     protected final JFrame frame;
 
@@ -34,6 +34,7 @@ public class SwingView extends AbstractView {
 
     public SwingView(JFrame frame) {
         this.frame = frame;
+        defaultLayout();
     }
 
     protected Container getContainer() {
@@ -47,8 +48,28 @@ public class SwingView extends AbstractView {
 
     protected void defaultLayout() {
         JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        panel.setLayout(new GridBagLayout());
         frame.setContentPane(panel);
+    }
+
+    protected void useGridBagConstraints(Container parent, Container child, int gridx, int gridy) {
+        useGridBagConstraints(parent, child, gridx, gridy, 1, 1);
+    }
+
+    protected void useGridBagConstraints(Container parent, Container child, int gridx, int gridy, int gridwidth, int gridheight) {
+        useGridBagConstraints(parent, child, new GridBagConstraints(), gridx, gridy, gridwidth, gridheight);
+    }
+
+    protected void useGridBagConstraints(Container parent, Container child, GridBagConstraints constraints, int gridx, int gridy) {
+        useGridBagConstraints(parent, child, constraints, gridx, gridy, 1, 1);
+    }
+
+    protected void useGridBagConstraints(Container parent, Container child, GridBagConstraints constraints, int gridx, int gridy, int gridwidth, int gridheight) {
+        constraints.gridx = gridx;
+        constraints.gridy = gridy;
+        constraints.gridwidth = gridwidth;
+        constraints.gridheight = gridheight;
+        parent.add(child, constraints);
     }
 
     protected static class InfoLayout {
@@ -58,8 +79,8 @@ public class SwingView extends AbstractView {
     protected InfoLayout infoLayout() {
         InfoLayout infoLayout = new InfoLayout();
         infoLayout.container = new JPanel();
-        GridBagLayout layout = new GridBagLayout();
-        infoLayout.container.setLayout(layout);
+        infoLayout.container.setLayout(new GridBagLayout());
+
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
@@ -67,15 +88,12 @@ public class SwingView extends AbstractView {
         infoLayout.top = new JPanel();
         infoLayout.top.setLayout(new FlowLayout(FlowLayout.CENTER));
         constraints.weighty = 0.9;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        infoLayout.container.add(infoLayout.top, constraints);
+        useGridBagConstraints(infoLayout.container, infoLayout.top, constraints, 0, 0);
 
         infoLayout.bottom = new JPanel();
         infoLayout.bottom.setLayout(new FlowLayout(FlowLayout.CENTER));
         constraints.weighty = 0.1;
-        constraints.gridy = 1;
-        infoLayout.container.add(infoLayout.bottom, constraints);
+        useGridBagConstraints(infoLayout.container, infoLayout.bottom, constraints, 0, 1);
 
         return infoLayout;
     }
@@ -83,42 +101,39 @@ public class SwingView extends AbstractView {
     protected InfoLayout infoLayout(JComponent container, JComponent top, JComponent bottom) {
         InfoLayout infoLayout = new InfoLayout();
         infoLayout.container = container;
-        GridBagLayout layout = new GridBagLayout();
-        infoLayout.container.setLayout(layout);
+        infoLayout.container.setLayout(new GridBagLayout());
+
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
 
         infoLayout.top = top;
         constraints.weighty = 0.9;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        infoLayout.container.add(infoLayout.top, constraints);
+        useGridBagConstraints(infoLayout.container, infoLayout.top, constraints, 0, 0);
 
         infoLayout.bottom = bottom;
         constraints.weighty = 0.1;
-        constraints.gridy = 1;
-        infoLayout.container.add(infoLayout.bottom, constraints);
+        useGridBagConstraints(infoLayout.container, infoLayout.bottom, constraints, 0, 1);
 
         return infoLayout;
     }
 
     @Override
     public void displayInfo(String info) {
-        InfoLayout layout = infoLayout();
-
+        GridBagConstraints constraints = new GridBagConstraints();
         CountDownLatch latch = new CountDownLatch(1);
         JLabel label = new JLabel(info);
-        layout.top.add(label);
+        getContainer().add(label);
 
         JButton button = new JButton("Continue");
         button.addActionListener(e -> {
             latch.countDown();
         });
 
-        layout.bottom.add(button);
-
-        frame.setContentPane(layout.container);
+        useGridBagConstraints(getContainer(), button, 0, 1);
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        getContainer().add(button, constraints);
 
         repaint();
 
@@ -182,15 +197,23 @@ public class SwingView extends AbstractView {
         List<JButton> buttons = new ArrayList<>();
         AtomicInteger choiceIndex = new AtomicInteger(-1);
 
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.weightx = 1.0d / choices.size();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(0, 5, 0, 5);
+
         for (int i = 0; i < choices.size(); i++) {
             final int finalI = i;
             JButton button = new JButton(choices.get(i));
+            button.setAlignmentY(Component.CENTER_ALIGNMENT);
             button.addActionListener(e -> {
                 choiceIndex.compareAndExchange(-1, finalI);
                 latch.countDown();
             });
             buttons.add(button);
-            getContainer().add(button);
+            constraints.gridx++;
+            getContainer().add(button, constraints);
         }
 
         repaint();
