@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class TextField extends JTextField {
     private final Map<?, ?> desktopHints =
-            (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
+        (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
 
     private String hint;
     private Color hintColor = Color.LIGHT_GRAY;
@@ -57,6 +57,7 @@ public class TextField extends JTextField {
 
         g.setColor(hintColor);
         g.drawString(hint, getInsets().left, pG.getFontMetrics()
-                .getMaxAscent() + getInsets().top);
+            .getMaxAscent() + getInsets().top
+        );
     }
 }
