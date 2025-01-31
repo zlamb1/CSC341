@@ -2,64 +2,61 @@ package com.github.zlamb1.view.swing;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.util.Objects;
+import java.util.Map;
 
 public class TextField extends JTextField {
+    private final Map<?, ?> desktopHints =
+            (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
+
     private String hint;
-    private Color recordedColor;
-    private final Color hintColor = Color.LIGHT_GRAY;
+    private Color hintColor = Color.LIGHT_GRAY;
 
     public TextField() {
         super();
-        recordedColor = getForeground();
-        initializeFocusListener();
     }
 
     public TextField(String text) {
         super(text);
-        recordedColor = getForeground();
-        initializeFocusListener();
-    }
-
-    protected void clearHint() {
-        setText("");
-        setForeground(recordedColor);
-    }
-
-    protected void applyHint() {
-        recordedColor = getForeground();
-        setText(hint);
-        setForeground(hintColor);
-    }
-
-    protected void initializeFocusListener() {
-        addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (Objects.equals(getText(), hint) && getForeground() == hintColor) {
-                    clearHint();
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (getText().isEmpty()) {
-                    applyHint();
-                }
-            }
-        });
-    }
-
-    public void setHint(String hint) {
-        this.hint = hint;
-        if (!hasFocus() && getText().isEmpty()) {
-            applyHint();
-        }
     }
 
     public String getHint() {
         return hint;
+    }
+
+    public void setHint(String hint) {
+        this.hint = hint;
+        setColumns(Math.max(getColumns(), hint.length()));
+    }
+
+    public Color getHintColor() {
+        return hintColor;
+    }
+
+    public void setHintColor(Color hintColor) {
+        this.hintColor = hintColor;
+    }
+
+    @Override
+    protected void paintComponent(final Graphics pG) {
+        super.paintComponent(pG);
+
+        if (hint == null || hint.isEmpty() || !getText().isEmpty()) {
+            return;
+        }
+
+        final Graphics2D g = (Graphics2D) pG;
+
+        if (desktopHints != null) {
+            g.setRenderingHints(desktopHints);
+        } else {
+            g.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+        }
+
+        g.setColor(hintColor);
+        g.drawString(hint, getInsets().left, pG.getFontMetrics()
+                .getMaxAscent() + getInsets().top);
     }
 }
