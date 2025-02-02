@@ -40,7 +40,7 @@ public class TextField extends JTextField {
     protected void paintComponent(final Graphics pG) {
         super.paintComponent(pG);
 
-        if (hint == null || hint.isEmpty() || !getText().isEmpty()) {
+        if (hint == null || hint.isEmpty() || (getText() != null && !getText().isEmpty())) {
             return;
         }
 
@@ -50,8 +50,8 @@ public class TextField extends JTextField {
             g.setRenderingHints(desktopHints);
         } else {
             g.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
+                RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON
             );
         }
 
