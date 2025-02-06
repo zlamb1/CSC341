@@ -6,6 +6,8 @@ import com.github.zlamb1.card.ICardControl;
 public class Main {
     public static void main(String[] args) {
         ICardControl app = new OldMaidApp(new OldMaidView());
-        app.startGame();
+        for (;;) {
+            app.startGame();
+        }
     }
 }

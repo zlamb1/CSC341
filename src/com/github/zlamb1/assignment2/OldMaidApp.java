@@ -86,8 +86,6 @@ public class OldMaidApp implements ICardControl {
             playRound();
         }
         view.displayInfo(getLoser().getName() + " is an Old Maid!");
-        // back to start
-        startGame();
     }
 
     protected boolean isGameOver() {
