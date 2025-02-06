@@ -234,6 +234,28 @@ public class SwingView extends AbstractView {
     }
 
     @Override
+    public void promptAlert(String prompt) {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        JButton button = new JButton(prompt);
+        button.addActionListener(e -> {
+            latch.countDown();
+        });
+
+        getContainer().add(button);
+        repaint();
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new AssertionError("Unexpected InterruptedException", e);
+        }
+
+        defaultLayout();
+        repaint();
+    }
+
+    @Override
     public void disposeView() {
         frame.setVisible(false);
         frame.dispose();

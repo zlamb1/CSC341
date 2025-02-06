@@ -1,7 +1,9 @@
 package com.github.zlamb1.card;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class Deck {
     private final static int NUM_JOKERS = 2;
@@ -19,7 +21,7 @@ public class Deck {
 
         for (Card.Suit suit : Card.Suit.values()) {
             for (Card.Rank rank : Card.Rank.values()) {
-                if (rank != Card.Rank.JOKER) {
+                if (suit != Card.Suit.JOKER && rank != Card.Rank.JOKER) {
                     cards.add(new Card(suit, rank));
                 }
             }
@@ -28,6 +30,17 @@ public class Deck {
         for (int i = 0; useJokers && i < NUM_JOKERS; i++) {
             cards.add(new Card(Card.Suit.JOKER, Card.Rank.JOKER));
         }
+    }
+
+    public boolean removeCard(Card.Rank rank) {
+        for (Card card : cards) {
+            if (card.getRank() == rank) {
+                cards.remove(card);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean removeCard(Card.Rank rank, Card.Suit suit) {
