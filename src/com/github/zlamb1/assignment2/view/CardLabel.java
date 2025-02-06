@@ -146,11 +146,11 @@ public class CardLabel extends JLabel {
             );
 
             Font originalFont = g.getFont();
-            g.setFont(originalFont.deriveFont(AffineTransform.getScaleInstance(1, -1)));
+            g.setFont(originalFont.deriveFont(AffineTransform.getScaleInstance(-1, -1)));
 
             // draw bottom-right flipped rank
             g.drawString(card.getRank().getShorthand(),
-                getWidth() - getInsets().right - g.getFontMetrics().stringWidth(card.getRank().getShorthand()) - rankPadding,
+                getWidth() - getInsets().right - (g.getFontMetrics().stringWidth(card.getRank().getShorthand()) / 2) - rankPadding - 3,
                 getHeight() + getInsets().top - rankPadding - 15
             );
 
