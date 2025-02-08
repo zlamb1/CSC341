@@ -52,11 +52,13 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         rightPanel.add(positionLabel);
 
         JButton undoButton = new JButton("Undo");
+        undoButton.setToolTipText("Ctrl+Z");
         undoButton.addActionListener(e -> {
             canvasArea.undo();
         });
 
         JButton undoAllButton = new JButton("Undo All");
+        undoAllButton.setToolTipText("Ctrl+Shift+Z");
         undoAllButton.addActionListener(e -> {
             canvasArea.undoAll();
         });
