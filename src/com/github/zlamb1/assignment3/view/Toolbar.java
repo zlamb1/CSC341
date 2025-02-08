@@ -1,5 +1,6 @@
 package com.github.zlamb1.assignment3.view;
 
+import com.github.zlamb1.assignment3.canvas.ICanvasDrawableFactory;
 import com.github.zlamb1.assignment3.listener.IDrawModeListener;
 import com.github.zlamb1.view.swing.WrapLayout;
 
@@ -13,15 +14,18 @@ import java.util.Map;
 public class Toolbar extends JPanel implements IToolbar {
     private final List<IDrawModeListener> drawModeListeners = new ArrayList<>();
 
-    private final Map<DrawMode, JButton> drawModeButtons = new HashMap<>();
+    private ICanvasDrawableFactory drawableFactory;
+
+    private final Map<DrawMode, DrawModeButton> drawModeButtons = new HashMap<>();
     private DrawMode drawMode;
 
-    protected void makeDrawModeButton(DrawMode drawMode, String text) {
+    protected void makeDrawModeButton(DrawMode drawMode) {
         if (drawModeButtons.containsKey(drawMode) && drawModeButtons.get(drawMode) != null) {
             remove(drawModeButtons.get(drawMode));
         }
 
-        JButton button = new JButton(text);
+        DrawModeButton button = new DrawModeButton(drawMode, drawableFactory);
+
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.addActionListener(e -> {
             for (IDrawModeListener drawModeListener : drawModeListeners) {
@@ -34,14 +38,15 @@ public class Toolbar extends JPanel implements IToolbar {
         drawModeButtons.put(drawMode, button);
     }
 
-    public Toolbar() {
+    public Toolbar(ICanvasDrawableFactory drawableFactory) {
         super();
+
+        this.drawableFactory = drawableFactory;
+
         setLayout(new WrapLayout(FlowLayout.LEFT));
 
         for (DrawMode drawMode : DrawMode.values()) {
-            String modeName = drawMode.name();
-            modeName = modeName.substring(0, 1).toUpperCase() + modeName.substring(1).toLowerCase();
-            makeDrawModeButton(drawMode, modeName);
+            makeDrawModeButton(drawMode);
         }
 
         setBorder(BorderFactory.createTitledBorder("Toolbar"));

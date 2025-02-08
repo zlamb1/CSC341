@@ -4,7 +4,7 @@ import com.github.zlamb1.assignment3.view.DrawMode;
 
 import java.awt.*;
 
-public interface ICanvasDrawableFactory {
+public interface ICanvasDrawableFactory extends Cloneable {
     ICanvasDrawableFactory setOrigin(Point origin);
     ICanvasDrawableFactory setColor(Color color);
     ICanvasDrawableFactory setSize(int size);
@@ -22,5 +22,6 @@ public interface ICanvasDrawableFactory {
     ICanvasDrawableProducer<?> removeCanvasDrawableProducer(DrawMode drawMode);
 
     ICanvasDrawable buildDrawable();
-    ICanvasDrawable buildDrawable(ICanvasDrawableFactory drawableFactory);
+
+    ICanvasDrawableFactory clone();
 }

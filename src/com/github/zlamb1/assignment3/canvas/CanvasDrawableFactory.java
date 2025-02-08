@@ -157,8 +157,19 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
     }
 
     @Override
-    public ICanvasDrawable buildDrawable(ICanvasDrawableFactory drawableFactory) {
-        return null;
+    public ICanvasDrawableFactory clone() {
+        try {
+            ICanvasDrawableFactory drawableFactory = (ICanvasDrawableFactory) super.clone();
+            // WARNING: ensure setOrigin so that no mutable references are preserved across clones
+            return drawableFactory
+                .setOrigin(new Point((int) origin.getX(), (int) origin.getY()))
+                .setColor(color)
+                .setSize(new Dimension(width, height))
+                .setDrawMode(drawMode)
+                .setFilled(filled);
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     protected Shape buildEllipse(Point origin, int halfWidth, int halfHeight) {

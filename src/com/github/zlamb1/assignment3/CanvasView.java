@@ -21,7 +21,7 @@ public class CanvasView {
 
         ICanvasDrawableFactory drawableFactory = new CanvasDrawableFactory();
         ICanvasArea canvasArea = new CanvasArea();
-        frame.add(new CanvasPanel(drawableFactory, new Toolbar(), canvasArea, new BottomToolbar(drawableFactory, canvasArea)));
+        frame.add(new CanvasPanel(drawableFactory, new Toolbar(drawableFactory), canvasArea, new BottomToolbar(drawableFactory, canvasArea)));
 
         frame.revalidate();
         frame.repaint();

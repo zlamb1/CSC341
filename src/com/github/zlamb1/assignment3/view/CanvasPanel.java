@@ -19,7 +19,7 @@ public class CanvasPanel extends JPanel {
     private boolean isDrawing = false;
     private DrawingContext drawingContext;
 
-    public CanvasPanel(ICanvasDrawableFactory shapeFactory, IToolbar toolbar, ICanvasArea canvasArea, Container bottom) {
+    public CanvasPanel(ICanvasDrawableFactory shapeFactory, IToolbar toolbar, ICanvasArea canvasArea, IBottomToolbar bottomToolbar) {
         super();
 
         this.shapeFactory = shapeFactory;
@@ -69,10 +69,17 @@ public class CanvasPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
         add(canvasArea.getComponent(), gbc);
 
+        canvasArea.getComponent().addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                bottomToolbar.setPosition(e.getPoint());
+            }
+        });
+
         gbc.gridy++;
         gbc.weighty = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(bottom, gbc);
+        add(bottomToolbar.getComponent(), gbc);
     }
 
     protected void setDrawing(boolean isDrawing, MouseEvent evt) {

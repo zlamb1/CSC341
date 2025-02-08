@@ -10,7 +10,7 @@ import com.github.zlamb1.view.swing.RGBField;
 import javax.swing.*;
 import java.awt.*;
 
-public class BottomToolbar extends JPanel {
+public class BottomToolbar extends JPanel implements IBottomToolbar {
     private final IDrawableListener drawableListener;
     private final IColorListener colorListener;
 
@@ -18,7 +18,9 @@ public class BottomToolbar extends JPanel {
     private final ICanvasArea canvasArea;
     private ICanvasDrawable activeDrawable;
 
-    private RGBField rgbField;
+    private final RGBField rgbField;
+
+    private final JLabel positionLabel;
 
     public BottomToolbar(ICanvasDrawableFactory drawableFactory, ICanvasArea canvasArea) {
         super();
@@ -45,6 +47,9 @@ public class BottomToolbar extends JPanel {
 
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
+        positionLabel = new JLabel("");
+        rightPanel.add(positionLabel);
 
         JButton undoButton = new JButton("Undo");
         undoButton.addActionListener(e -> {
@@ -92,5 +97,16 @@ public class BottomToolbar extends JPanel {
         super.removeNotify();
         canvasArea.removeDrawableListener(drawableListener);
         rgbField.removeColorListener(colorListener);
+    }
+
+    @Override
+    public void setPosition(Point position) {
+        positionLabel.setText((int) position.getX() + ", " + (int) position.getY());
+        positionLabel.repaint();
+    }
+
+    @Override
+    public JComponent getComponent() {
+        return this;
     }
 }
