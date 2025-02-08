@@ -3,6 +3,7 @@ package com.github.zlamb1.assignment3.view;
 public enum DrawMode {
     LINE,
     TRIANGLE,
+    RIGHT_TRIANGLE,
     CIRCLE,
     ELLIPSE,
     SQUARE,

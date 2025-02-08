@@ -115,9 +115,12 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
             }
         }
 
+        boolean filled = this.filled;
         int halfWidth = Math.abs(width) / 2;
         int halfHeight = Math.abs(height) / 2;
         int halfSize = Math.max(Math.max(halfWidth, halfHeight), MIN_SIZE);
+
+        Shape shape = null;
 
         // default behaviors
         switch (drawMode) {
@@ -126,27 +129,46 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
                 polygon.addPoint(origin.x, origin.y);
                 polygon.addPoint(origin.x - width, origin.y - height);
                 // WARNING: lines don't render if filled
-                return new CanvasShape(origin, polygon, color, false);
+                filled = false;
+                shape = polygon;
+                break;
             }
             case TRIANGLE: {
                 Polygon polygon = new Polygon();
                 polygon.addPoint((int) origin.getX(), (int) (origin.getY() - halfSize));
                 polygon.addPoint((int) (origin.getX() - halfSize), (int) (origin.getY() + halfSize));
                 polygon.addPoint((int) (origin.getX() + halfSize), (int) (origin.getY() + halfSize));
-                return new CanvasShape(origin, polygon, color, filled);
+                shape = polygon;
+                break;
+            }
+            case RIGHT_TRIANGLE: {
+                Polygon polygon = new Polygon();
+                polygon.addPoint((int) origin.getX() - halfSize, (int) (origin.getY() - halfSize));
+                polygon.addPoint((int) origin.getX() - halfSize, (int) (origin.getY() + halfSize));
+                polygon.addPoint((int) origin.getX() + halfSize, (int) (origin.getY() + halfSize));
+                shape = polygon;
+                break;
             }
             case CIRCLE: {
-                return new CanvasShape(origin, buildEllipse(origin, halfSize, halfSize), color, filled);
+                shape = buildEllipse(origin, halfSize, halfSize);
+                break;
             }
             case ELLIPSE: {
-                return new CanvasShape(origin, buildEllipse(origin, halfWidth, halfHeight), color, filled);
+                shape = buildEllipse(origin, halfWidth, halfHeight);
+                break;
             }
             case SQUARE: {
-                return new CanvasShape(origin, buildRectangle(origin, halfSize, halfSize), color, filled);
+                shape = buildRectangle(origin, halfSize, halfSize);
+                break;
             }
             case RECTANGLE: {
-                return new CanvasShape(origin, buildRectangle(origin, halfWidth, halfHeight), color, filled);
+                shape = buildRectangle(origin, halfWidth, halfHeight);
+                break;
             }
+        }
+
+        if (shape != null) {
+            return new CanvasShape(origin, shape, color, filled);
         }
 
         if (drawMode.isArbitraryPolygon()) {

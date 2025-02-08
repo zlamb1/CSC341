@@ -1,5 +1,6 @@
 package com.github.zlamb1.assignment3.view;
 
+import com.github.zlamb1.assignment3.canvas.ICanvasDrawable;
 import com.github.zlamb1.assignment3.canvas.ICanvasDrawableFactory;
 
 import javax.swing.*;
@@ -12,25 +13,52 @@ public class DrawModeButton extends JButton {
 
     private static final int ICON_SIZE = 25;
 
+    protected static String getButtonText(DrawMode drawMode) {
+        String modeName = drawMode.name();
+
+        StringBuilder sb = new StringBuilder();
+
+        String[] parts = modeName.split("[ \\-_]+");
+        for (int i = 0; i < parts.length; i++) {
+            String s = parts[i];
+            sb.append(s.substring(0, 1).toUpperCase())
+              .append(s.substring(1).toLowerCase());
+            if (i != parts.length - 1) {
+                sb.append(" ");
+            }
+        }
+
+        return sb.toString();
+    }
+
     public DrawModeButton(DrawMode drawMode, ICanvasDrawableFactory drawableFactory) {
-        super(drawMode.name().substring(0, 1).toUpperCase() + drawMode.name().substring(1).toLowerCase());
+        super(DrawModeButton.getButtonText(drawMode));
 
         this.drawableFactory = drawableFactory;
         this.drawMode = drawMode;
 
-        setIcon(generateIcon(ICON_SIZE, ICON_SIZE));
+        setIcon();
     }
 
     @Override
     public void setForeground(Color color) {
         super.setForeground(color);
+        // regenerate icon when foreground color changes
+        setIcon();
+    }
+
+    protected void setIcon() {
         if (drawMode != null) {
-            // regenerate icon with correct foreground
-            setIcon(generateIcon(ICON_SIZE, ICON_SIZE));
+            try {
+                super.setIcon(generateIcon(ICON_SIZE, ICON_SIZE));
+            } catch (UnsupportedOperationException e) {
+                // factory does not support draw mode
+                setVisible(false);
+            }
         }
     }
 
-    protected ImageIcon generateIcon(int width, int height) {
+    protected ImageIcon generateIcon(int width, int height) throws UnsupportedOperationException {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
 
@@ -57,8 +85,13 @@ public class DrawModeButton extends JButton {
             .setSize(size)
             .setFilled(false);
 
-        factoryInstance.buildDrawable().draw(g2d);
+        ICanvasDrawable canvasDrawable = factoryInstance.buildDrawable();
 
+        if (canvasDrawable == null) {
+            throw new UnsupportedOperationException();
+        }
+
+        canvasDrawable.draw(g2d);
         g2d.dispose();
 
         return new ImageIcon(image);
