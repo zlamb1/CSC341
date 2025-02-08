@@ -60,7 +60,15 @@ public class Toolbar extends JPanel implements IToolbar {
 
     @Override
     public void setDrawMode(DrawMode drawMode) {
+        if (drawModeButtons.containsKey(this.drawMode) && drawModeButtons.get(this.drawMode) != null) {
+            drawModeButtons.get(this.drawMode).setSelected(false);
+        }
+
         this.drawMode = drawMode;
+
+        if (drawModeButtons.containsKey(drawMode) && drawModeButtons.get(drawMode) != null) {
+            drawModeButtons.get(drawMode).setSelected(true);
+        }
     }
 
     @Override

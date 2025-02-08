@@ -11,7 +11,7 @@ public class DrawModeButton extends JButton {
     private final ICanvasDrawableFactory drawableFactory;
     private final DrawMode drawMode;
 
-    private static final int ICON_SIZE = 25;
+    private static final int ICON_SIZE = 20;
 
     protected static String getButtonText(DrawMode drawMode) {
         String modeName = drawMode.name();
