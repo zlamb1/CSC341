@@ -27,8 +27,8 @@ public class CardLabel extends JLabel {
             try {
                 URL imageUrl = CardLabel.class.getClassLoader().getResource(CARD_BACK_IMG_URL);
                 assert imageUrl != null;
-                backImage = ImageIO.read(imageUrl).getScaledInstance(width, height, Image.SCALE_SMOOTH);
-                backImageCache.put(key, backImage);
+                backImage = ImageIO.read(imageUrl);
+                backImageCache.put(key, backImage.getScaledInstance(width, height, Image.SCALE_SMOOTH));
             } catch (IOException exc) {
                 throw new RuntimeException("Failed to Load CardLabel Image");
             }
