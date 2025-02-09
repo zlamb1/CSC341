@@ -8,6 +8,9 @@ import com.github.zlamb1.view.listener.IColorListener;
 import com.github.zlamb1.view.swing.RGBField;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
 
 public class BottomToolbar extends JPanel implements IBottomToolbar {
@@ -34,9 +37,11 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        rgbField = new RGBField("Color: ");
+        rgbField = new RGBField("Color");
         rgbField.setAlignmentX(Component.LEFT_ALIGNMENT);
         leftPanel.add(rgbField);
+
+        setupStrokeField(leftPanel);
 
         JCheckBox filled = new JCheckBox("Filled");
         filled.addActionListener(e -> {
@@ -51,20 +56,7 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         positionLabel = new JLabel("");
         rightPanel.add(positionLabel);
 
-        JButton undoButton = new JButton("Undo");
-        undoButton.setToolTipText("Ctrl+Z");
-        undoButton.addActionListener(e -> {
-            canvasArea.undo();
-        });
-
-        JButton undoAllButton = new JButton("Undo All");
-        undoAllButton.setToolTipText("Ctrl+Shift+Z");
-        undoAllButton.addActionListener(e -> {
-            canvasArea.undoAll();
-        });
-
-        rightPanel.add(undoButton);
-        rightPanel.add(undoAllButton);
+        setupUndoButtons(rightPanel);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -74,6 +66,7 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         gbc.anchor = GridBagConstraints.NORTHWEST;
 
         add(leftPanel, gbc);
+
         gbc.gridx++;
         add(rightPanel, gbc);
 
@@ -110,5 +103,60 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
     @Override
     public JComponent getComponent() {
         return this;
+    }
+
+    protected void setupStrokeField(Container container) {
+        JLabel strokeLabel = new JLabel("Stroke");
+
+        JTextField strokeField = new JTextField(drawableFactory.getStrokeWidth() + "");
+        strokeField.setPreferredSize(new Dimension(50, 30));
+
+        strokeField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                onUpdate(e);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                onUpdate(e);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+
+            private void onUpdate(DocumentEvent e) {
+                try {
+                    String newText = e.getDocument().getText(0, e.getDocument().getLength());
+                    drawableFactory.setStrokeWidth(Integer.parseInt(newText));
+                } catch (BadLocationException exc) {
+                    throw new AssertionError(exc);
+                } catch (NumberFormatException ignored)
+                {
+                }
+            }
+        });
+
+        container.add(strokeLabel);
+        container.add(strokeField);
+    }
+
+    protected void setupUndoButtons(Container container) {
+        JButton undoButton = new JButton("Undo");
+        undoButton.setToolTipText("Ctrl+Z");
+        undoButton.addActionListener(e -> {
+            canvasArea.undo();
+        });
+
+        JButton undoAllButton = new JButton("Undo All");
+        undoAllButton.setToolTipText("Ctrl+Shift+Z");
+        undoAllButton.addActionListener(e -> {
+            canvasArea.undoAll();
+        });
+
+        container.add(undoButton);
+        container.add(undoAllButton);
     }
 }

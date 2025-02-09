@@ -61,6 +61,7 @@ public class DrawModeButton extends JButton {
     protected ImageIcon generateIcon(int width, int height) throws UnsupportedOperationException {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int halfWidth = width / 2;
         int quarterWidth = width / 4;
@@ -83,6 +84,7 @@ public class DrawModeButton extends JButton {
             .setOrigin(origin)
             .setColor(getForeground())
             .setSize(size)
+            .setStrokeWidth(1)
             .setFilled(false);
 
         ICanvasDrawable canvasDrawable = factoryInstance.buildDrawable();

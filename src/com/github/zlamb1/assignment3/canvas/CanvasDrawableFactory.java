@@ -22,6 +22,7 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
     protected Point origin;
     protected Color color;
     protected int width, height;
+    protected int strokeWidth;
     protected boolean filled;
 
     public CanvasDrawableFactory() {
@@ -30,6 +31,7 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
         this.color = Color.BLACK;
         this.width = MIN_SIZE;
         this.height = MIN_SIZE;
+        this.strokeWidth = 1;
         this.filled = false;
     }
 
@@ -72,6 +74,12 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
     }
 
     @Override
+    public ICanvasDrawableFactory setStrokeWidth(int strokeWidth) {
+        this.strokeWidth = strokeWidth;
+        return this;
+    }
+
+    @Override
     public Point getOrigin() {
         return origin;
     }
@@ -94,6 +102,11 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
     @Override
     public boolean isFilled() {
         return filled;
+    }
+
+    @Override
+    public int getStrokeWidth() {
+        return strokeWidth;
     }
 
     @Override
@@ -168,11 +181,11 @@ public class CanvasDrawableFactory implements ICanvasDrawableFactory {
         }
 
         if (shape != null) {
-            return new CanvasShape(origin, shape, color, filled);
+            return new CanvasShape(origin, shape, color, strokeWidth, filled);
         }
 
         if (drawMode.isArbitraryPolygon()) {
-            return new CanvasShape(origin, buildArbitraryPolygon(origin, drawMode.getNSides(), halfSize), color, filled);
+            return new CanvasShape(origin, buildArbitraryPolygon(origin, drawMode.getNSides(), halfSize), color, strokeWidth, filled);
         }
 
         return null;

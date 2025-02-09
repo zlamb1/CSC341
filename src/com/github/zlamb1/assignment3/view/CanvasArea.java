@@ -9,44 +9,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CanvasArea extends JPanel implements ICanvasArea {
-    private final List<ICanvasDrawable> canvasDrawables = new ArrayList<>();
-    private final List<IDrawableListener> drawableListeners = new ArrayList<>();
-    private ICanvasDrawable ghostDrawable;
+    protected final List<ICanvasDrawable> canvasDrawables = new ArrayList<>();
+    protected final List<IDrawableListener> drawableListeners = new ArrayList<>();
+    protected ICanvasDrawable ghostDrawable;
+    protected Image canvasImage;
+
+    protected final JScrollPane canvasScrollPane;
+    protected final JPanel canvas;
+    protected Dimension canvasSize;
 
     public CanvasArea() {
         super();
-        setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+
         setBorder(BorderFactory.createTitledBorder("Canvas Area"));
+        setLayout(new GridBagLayout());
+
+        canvas = new JPanel() {
+            @Override
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setColor(Color.WHITE);
+                drawCanvas(g2d);
+                if (ghostDrawable != null) {
+                    ghostDrawable.draw(g);
+                }
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return getCanvasSize();
+            }
+        };
+
+        canvas.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+
+        canvasScrollPane = new JScrollPane(canvas);
+        canvasScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+
+        add(canvasScrollPane, gbc);
     }
 
     @Override
-    public void paintComponent(Graphics g) {
+    protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-
-        g2d.setColor(Color.WHITE);
-        Insets insets = getInsets();
-
-        int regionWidth = getWidth() - insets.left - insets.right;
-        int regionHeight = getHeight() - insets.top - insets.bottom;
-
-        // clip shapes past insets
-        Shape clip = g2d.getClip();
-        g2d.setClip(insets.left, insets.top, regionWidth, regionHeight);
-
-        g2d.fillRect(insets.left, insets.top, regionWidth, regionHeight);
-        g2d.setColor(Color.BLACK);
-
-        for (ICanvasDrawable canvasDrawable : canvasDrawables) {
-            canvasDrawable.draw(g);
-        }
-
-        if (ghostDrawable != null) {
-            ghostDrawable.draw(g);
-        }
-
-        // restore clip
-        g2d.setClip(clip);
     }
 
     @Override
@@ -130,5 +141,66 @@ public class CanvasArea extends JPanel implements ICanvasArea {
             revalidate();
             repaint();
         }
+    }
+
+    @Override
+    public void clear() {
+        canvasDrawables.clear();
+        ghostDrawable = null;
+        canvasImage = null;
+        setCanvasSize(null);
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public JComponent getCanvas() {
+        return canvas;
+    }
+
+    @Override
+    public Dimension getCanvasSize() {
+        return canvasSize != null ? canvasSize : getInnerSize();
+    }
+
+    @Override
+    public void setCanvasSize(Dimension canvasSize) {
+        this.canvasSize = canvasSize;
+        canvas.revalidate();
+        canvas.repaint();
+    }
+
+    @Override
+    public void setCanvasImage(Image image) {
+        clear();
+
+        setCanvasSize(new Dimension(image.getWidth(null), image.getHeight(null)));
+        canvasImage = image;
+
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public void drawCanvas(Graphics g) {
+        Dimension canvasSize = getCanvasSize();
+        g.setColor(Color.WHITE);
+
+        if (canvasImage != null) {
+            g.drawImage(canvasImage, 0, 0, (int) canvasSize.getWidth(), (int) canvasSize.getHeight(), null);
+        } else {
+            g.fillRect(0, 0, (int) canvasSize.getWidth(), (int) canvasSize.getHeight());
+        }
+
+        for (ICanvasDrawable canvasDrawable : canvasDrawables) {
+            canvasDrawable.draw(g);
+        }
+    }
+
+    protected Dimension getInnerSize() {
+        return new Dimension(
+            getWidth() - getInsets().left - getInsets().right - 2,
+            getHeight() - getInsets().top - getInsets().bottom - 2
+        );
     }
 }

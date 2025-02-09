@@ -7,14 +7,21 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RGBField extends JPanel {
+    protected static final Map<Color, ImageIcon> iconCache = new HashMap<>();
+
     protected List<IColorListener> colorListeners = new ArrayList<>();
     protected Color color = Color.BLACK;
 
     protected List<JTextField> componentFields = new ArrayList<>();
+    protected JLabel fieldLabel;
 
     public RGBField(String label) {
         super();
@@ -63,7 +70,7 @@ public class RGBField extends JPanel {
 
                     Color newColor = new Color(r, g, b, a);
                     if (!newColor.equals(color)) {
-                        color = newColor;
+                        internalSetColor(newColor);
                         for (IColorListener listener : colorListeners) {
                             listener.onChangeColor(newColor);
                         }
@@ -76,9 +83,12 @@ public class RGBField extends JPanel {
             }
         };
 
-        add(new JLabel(label));
-        for (int i = 0; i < componentFields.size(); i++) {
-            JTextField field = componentFields.get(i);
+        fieldLabel = new JLabel(label);
+        add(fieldLabel);
+
+        internalSetColor(color);
+
+        for (JTextField field : componentFields) {
             field.getDocument().addDocumentListener(documentListener);
             add(field);
         }
@@ -95,6 +105,7 @@ public class RGBField extends JPanel {
         if (componentFields.size() > 3) {
             componentFields.get(3).setText(String.valueOf(color.getAlpha()));
         }
+        internalSetColor(color);
     }
 
     public void addColorListener(IColorListener listener) {
@@ -103,6 +114,33 @@ public class RGBField extends JPanel {
 
     public boolean removeColorListener(IColorListener listener) {
         return colorListeners.remove(listener);
+    }
+
+    protected void internalSetColor(Color color) {
+        this.color = color;
+
+        if (iconCache.containsKey(color)) {
+            fieldLabel.setIcon(iconCache.get(color));
+        } else {
+            SwingUtilities.invokeLater(() -> {
+                // batch task for later; ensure color remains same
+                if (this.color == color) {
+                    BufferedImage image = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
+
+                    Graphics2D g2d = (Graphics2D) image.getGraphics();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                    Ellipse2D circle = new Ellipse2D.Double(1, 1, 8, 8);
+                    g2d.setColor(color);
+                    g2d.fill(circle);
+                    g2d.dispose();
+
+                    ImageIcon icon = new ImageIcon(image);
+                    iconCache.put(color, icon);
+                    fieldLabel.setIcon(icon);
+                }
+            });
+        }
     }
 
     protected JTextField getDefaultTextField() {

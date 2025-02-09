@@ -6,13 +6,14 @@ public class CanvasShape implements ICanvasDrawable {
     protected Point origin;
     protected Shape shape;
     protected Color color;
-    protected int strokeWidth = 1;
+    protected int strokeWidth;
     protected boolean filled;
 
-    public CanvasShape(Point origin, Shape shape, Color color, boolean filled) {
+    public CanvasShape(Point origin, Shape shape, Color color, int strokeWidth, boolean filled) {
         this.origin = origin;
         this.shape = shape;
         this.color = color;
+        this.strokeWidth = strokeWidth;
         this.filled = filled;
     }
 

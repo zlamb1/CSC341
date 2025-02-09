@@ -3,10 +3,13 @@ package com.github.zlamb1.assignment3;
 import com.github.zlamb1.assignment3.canvas.CanvasDrawableFactory;
 import com.github.zlamb1.assignment3.canvas.ICanvasDrawableFactory;
 import com.github.zlamb1.assignment3.view.*;
+import com.github.zlamb1.assignment3.view.MenuBar;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.awt.event.InputEvent.*;
@@ -41,12 +44,14 @@ public class CanvasView extends JFrame {
         };
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(600, 800);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         drawableFactory = new CanvasDrawableFactory();
         canvasArea = new CanvasArea();
         add(new CanvasPanel(drawableFactory, new Toolbar(drawableFactory), canvasArea, new BottomToolbar(drawableFactory, canvasArea)));
+
+        setJMenuBar(new MenuBar(canvasArea));
 
         setVisible(true);
 
