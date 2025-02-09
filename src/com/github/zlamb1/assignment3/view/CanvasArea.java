@@ -197,6 +197,12 @@ public class CanvasArea extends JPanel implements ICanvasArea {
         }
     }
 
+    @Override
+    public void invalidateCanvas() {
+        canvas.revalidate();
+        canvas.repaint();
+    }
+
     protected Dimension getInnerSize() {
         return new Dimension(
             getWidth() - getInsets().left - getInsets().right - 2,

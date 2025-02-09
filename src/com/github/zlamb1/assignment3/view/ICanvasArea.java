@@ -26,4 +26,5 @@ public interface ICanvasArea extends ISwingComponent {
     void setCanvasImage(Image image);
 
     void drawCanvas(final Graphics g);
+    void invalidateCanvas();
 }

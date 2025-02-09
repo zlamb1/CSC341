@@ -5,23 +5,25 @@ import com.github.zlamb1.assignment3.listener.IDrawableListener;
 import com.github.zlamb1.assignment3.canvas.ICanvasDrawable;
 import com.github.zlamb1.assignment3.canvas.ICanvasDrawableFactory;
 import com.github.zlamb1.view.listener.IColorListener;
+import com.github.zlamb1.view.listener.IPositionListener;
+import com.github.zlamb1.view.swing.PositionField;
 import com.github.zlamb1.view.swing.RGBField;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 import java.awt.*;
 
 public class BottomToolbar extends JPanel implements IBottomToolbar {
     private final IDrawableListener drawableListener;
     private final IColorListener colorListener;
+    private final IPositionListener positionListener;
 
     private final ICanvasDrawableFactory drawableFactory;
     private final ICanvasArea canvasArea;
     private ICanvasDrawable activeDrawable;
 
     private final RGBField rgbField;
+    private final PositionField positionField;
+    private final PositionField strokeField;
 
     private final JLabel positionLabel;
 
@@ -35,18 +37,26 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         setBorder(BorderFactory.createTitledBorder("Options"));
 
         JPanel leftPanel = new JPanel();
-        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 0));
 
         rgbField = new RGBField("Color");
         rgbField.setAlignmentX(Component.LEFT_ALIGNMENT);
         leftPanel.add(rgbField);
 
-        setupStrokeField(leftPanel);
+        positionField = new PositionField("Position");
+        positionField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        leftPanel.add(positionField);
+
+        strokeField = new PositionField("Stroke", 1);
+        strokeField.setAlignmentX(Component.LEFT_ALIGNMENT);
+        strokeField.setPositionComponents(new int[] { drawableFactory.getStrokeWidth() });
+        strokeField.addPositionListener(stroke -> {
+            drawableFactory.setStrokeWidth(stroke[0]);
+        });
+        leftPanel.add(strokeField);
 
         JCheckBox filled = new JCheckBox("Filled");
-        filled.addActionListener(e -> {
-            this.drawableFactory.setFilled(filled.isSelected());
-        });
+        filled.addActionListener(e -> this.drawableFactory.setFilled(filled.isSelected()));
 
         leftPanel.add(filled);
 
@@ -74,10 +84,19 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
             @Override
             public void onAddDrawable(ICanvasDrawable canvasDrawable) {
                 activeDrawable = canvasDrawable;
+                int[] i = new int[] { (int) canvasDrawable.getOrigin().getX(), (int) canvasDrawable.getOrigin().getY() };
+                positionField.setPositionComponents(i);
             }
         };
 
         colorListener = drawableFactory::setColor;
+
+        positionListener = (components) -> {
+            if (activeDrawable != null) {
+                activeDrawable.moveTo(new Point(components[0], components[1]));
+                canvasArea.invalidateCanvas();
+            }
+        };
     }
 
     @Override
@@ -85,6 +104,7 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         super.addNotify();
         canvasArea.addDrawableListener(drawableListener);
         rgbField.addColorListener(colorListener);
+        positionField.addPositionListener(positionListener);
     }
 
     @Override
@@ -92,6 +112,7 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
         super.removeNotify();
         canvasArea.removeDrawableListener(drawableListener);
         rgbField.removeColorListener(colorListener);
+        positionField.removePositionListener(positionListener);
     }
 
     @Override
@@ -103,44 +124,6 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
     @Override
     public JComponent getComponent() {
         return this;
-    }
-
-    protected void setupStrokeField(Container container) {
-        JLabel strokeLabel = new JLabel("Stroke");
-
-        JTextField strokeField = new JTextField(drawableFactory.getStrokeWidth() + "");
-        strokeField.setPreferredSize(new Dimension(50, 30));
-
-        strokeField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                onUpdate(e);
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                onUpdate(e);
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e)
-            {
-            }
-
-            private void onUpdate(DocumentEvent e) {
-                try {
-                    String newText = e.getDocument().getText(0, e.getDocument().getLength());
-                    drawableFactory.setStrokeWidth(Integer.parseInt(newText));
-                } catch (BadLocationException exc) {
-                    throw new AssertionError(exc);
-                } catch (NumberFormatException ignored)
-                {
-                }
-            }
-        });
-
-        container.add(strokeLabel);
-        container.add(strokeField);
     }
 
     protected void setupUndoButtons(Container container) {

@@ -1,6 +1,7 @@
 package com.github.zlamb1.assignment3.canvas;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 public class CanvasShape implements ICanvasDrawable {
     protected Point origin;
@@ -25,6 +26,13 @@ public class CanvasShape implements ICanvasDrawable {
     @Override
     public Point getOrigin() {
         return origin;
+    }
+
+    @Override
+    public void moveTo(Point point) {
+        Point translate = new Point(point.x - origin.x, point.y - origin.y);
+        shape = AffineTransform.getTranslateInstance(translate.x, translate.y).createTransformedShape(shape);
+        origin = point;
     }
 
     @Override
