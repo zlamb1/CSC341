@@ -1,12 +1,15 @@
 package com.github.zlamb1.view.swing;
 
-import com.github.zlamb1.view.listener.IColorListener;
+import com.github.zlamb1.view.listener.IValueListener;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.awt.color.ColorSpace;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import java.util.Map;
 public class RGBField extends JPanel {
     protected static final Map<Color, ImageIcon> iconCache = new HashMap<>();
 
-    protected List<IColorListener> colorListeners = new ArrayList<>();
+    protected List<IValueListener<Color>> colorListeners = new ArrayList<>();
     protected Color color = Color.BLACK;
 
     protected List<JTextField> componentFields = new ArrayList<>();
@@ -25,6 +28,8 @@ public class RGBField extends JPanel {
 
     public RGBField(String label) {
         super();
+
+        setLayout(new GridBagLayout());
 
         for (int i = 0; i < 3; i++) {
             JTextField componentField = getDefaultTextField();
@@ -48,16 +53,6 @@ public class RGBField extends JPanel {
             {
             }
 
-            private int getComponent(int component, int rgbaComponent, String text, int defaultValue) throws NumberFormatException {
-                if (rgbaComponent == component) {
-                    return Integer.parseInt(text);
-                } else if (componentFields.size() > component) {
-                    return Integer.parseInt(componentFields.get(component).getText());
-                } else {
-                    return defaultValue;
-                }
-            }
-
             private void onUpdate(DocumentEvent e) {
                 try {
                     String newText = e.getDocument().getText(0, e.getDocument().getLength());
@@ -68,29 +63,56 @@ public class RGBField extends JPanel {
                     int b = getComponent(2, rgbaComponent, newText, 0);
                     int a = getComponent(3, rgbaComponent, newText, 255);
 
+                    Color oldColor = color;
                     Color newColor = new Color(r, g, b, a);
+
                     if (!newColor.equals(color)) {
                         internalSetColor(newColor);
-                        for (IColorListener listener : colorListeners) {
-                            listener.onChangeColor(newColor);
+                        for (IValueListener<Color> listener : colorListeners) {
+                            listener.onValueChange(oldColor, newColor);
                         }
                     }
                 } catch (NumberFormatException ignored)
                 {
                 } catch (BadLocationException exc) {
-                    exc.printStackTrace();
+                    throw new AssertionError(exc);
                 }
             }
         };
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 0, 5);
+
         fieldLabel = new JLabel(label);
-        add(fieldLabel);
+        add(fieldLabel, gbc);
 
         internalSetColor(color);
 
-        for (JTextField field : componentFields) {
-            field.getDocument().addDocumentListener(documentListener);
-            add(field);
+        gbc.gridx++;
+        for (int i = 0; i < componentFields.size(); i++) {
+            JTextField componentField = componentFields.get(i);
+            componentField.getDocument().addDocumentListener(documentListener);
+
+            componentField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    int[] components = new int[] {
+                        color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()
+                    };
+                    for (int i = 0; i < componentFields.size(); i++) {
+                        componentFields.get(i).setText(String.valueOf(components[i]));
+                    }
+                }
+            });
+
+            if (i == componentFields.size() - 1) {
+                gbc.insets = new Insets(0, 0, 0, 0);
+            }
+
+            add(componentField, gbc);
+            gbc.gridx++;
         }
     }
 
@@ -108,12 +130,12 @@ public class RGBField extends JPanel {
         internalSetColor(color);
     }
 
-    public void addColorListener(IColorListener listener) {
-        colorListeners.add(listener);
+    public void addColorListener(IValueListener<Color> colorListener) {
+        colorListeners.add(colorListener);
     }
 
-    public boolean removeColorListener(IColorListener listener) {
-        return colorListeners.remove(listener);
+    public boolean removeColorListener(IValueListener<Color> colorListener) {
+        return colorListeners.remove(colorListener);
     }
 
     protected void internalSetColor(Color color) {
@@ -141,6 +163,16 @@ public class RGBField extends JPanel {
                 }
             });
         }
+    }
+
+    protected int getComponent(int component, int rgbaComponent, String text, int defaultValue) throws NumberFormatException {
+        int value = defaultValue;
+        if (rgbaComponent == component) {
+            value = Integer.parseInt(text);
+        } else if (componentFields.size() > component) {
+            value = Integer.parseInt(componentFields.get(component).getText());
+        }
+        return Math.min(Math.max(value, 0), 255);
     }
 
     protected JTextField getDefaultTextField() {

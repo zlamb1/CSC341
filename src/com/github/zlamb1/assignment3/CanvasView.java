@@ -7,9 +7,7 @@ import com.github.zlamb1.assignment3.view.MenuBar;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.awt.event.InputEvent.*;
@@ -17,12 +15,15 @@ import static java.awt.event.InputEvent.*;
 public class CanvasView extends JFrame {
     private final KeyEventPostProcessor keyEventPostProcessor;
 
-    protected final static int undoTimerDuration = 250;
+    protected final static int undoTimerDuration = 300;
     protected final Timer undoTimer;
     protected final AtomicBoolean canUndo = new AtomicBoolean(true);
 
     protected ICanvasDrawableFactory drawableFactory;
+
+    protected IToolbar toolbar;
     protected ICanvasArea canvasArea;
+    protected IBottomToolbar bottomToolbar;
 
     public CanvasView() {
         super();
@@ -43,20 +44,32 @@ public class CanvasView extends JFrame {
             return true;
         };
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 800);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-
         drawableFactory = new CanvasDrawableFactory();
+        toolbar = new Toolbar(drawableFactory);
         canvasArea = new CanvasArea();
-        add(new CanvasPanel(drawableFactory, new Toolbar(drawableFactory), canvasArea, new BottomToolbar(drawableFactory, canvasArea)));
+        bottomToolbar = new BottomToolbar(drawableFactory, canvasArea);
 
-        setJMenuBar(new MenuBar(canvasArea));
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // this fixes artifacts with WrapLayout not being relaid out correctly on maximize/minimize
+                SwingUtilities.invokeLater(() -> {
+                    revalidate();
+                    repaint();
+                });
+            }
+        });
 
-        setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            setContentPane(new CanvasPanel(drawableFactory, toolbar, canvasArea, bottomToolbar));
+            setJMenuBar(new MenuBar(canvasArea));
 
-        revalidate();
-        repaint();
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setSize(600, 800);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+            setVisible(true);
+        });
     }
 
     @Override

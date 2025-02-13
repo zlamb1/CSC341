@@ -29,6 +29,11 @@ public class PositionField extends JPanel {
         setLayout(new GridBagLayout());
 
         components = new int[nComponents];
+
+        for (int i = 0; i < nComponents; i++) {
+            components[i] = 0;
+        }
+
         componentFields = new JTextField[nComponents];
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -96,7 +101,7 @@ public class PositionField extends JPanel {
 
         for (int i = 0; i < nComponents; i++) {
             components[i] = 0;
-            componentFields[i] = new JTextField(components[i]) {
+            componentFields[i] = new JTextField(String.valueOf(components[i])) {
                 @Override
                 public Dimension getPreferredSize() {
                     Dimension preferredSize = super.getPreferredSize();

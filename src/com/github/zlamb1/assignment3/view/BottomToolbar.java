@@ -89,7 +89,7 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
             }
         };
 
-        colorListener = drawableFactory::setColor;
+        colorListener = (Color oldColor, Color newColor) -> drawableFactory.setColor(newColor);
 
         positionListener = (components) -> {
             if (activeDrawable != null) {
@@ -118,7 +118,6 @@ public class BottomToolbar extends JPanel implements IBottomToolbar {
     @Override
     public void setPosition(Point position) {
         positionLabel.setText((int) position.getX() + ", " + (int) position.getY());
-        positionLabel.repaint();
     }
 
     @Override

@@ -145,10 +145,15 @@ public class CanvasArea extends JPanel implements ICanvasArea {
 
     @Override
     public void clear() {
+        clear(null);
+    }
+
+    @Override
+    public void clear(Dimension newSize) {
         canvasDrawables.clear();
         ghostDrawable = null;
         canvasImage = null;
-        setCanvasSize(null);
+        setCanvasSize(newSize);
         revalidate();
         repaint();
     }

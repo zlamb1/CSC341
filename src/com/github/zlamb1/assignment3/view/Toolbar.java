@@ -6,6 +6,8 @@ import com.github.zlamb1.view.swing.WrapLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

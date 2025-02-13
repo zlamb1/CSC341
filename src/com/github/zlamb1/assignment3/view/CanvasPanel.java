@@ -71,10 +71,10 @@ public class CanvasPanel extends JPanel {
         gbc.fill = GridBagConstraints.BOTH;
         add(canvasArea.getComponent(), gbc);
 
-        canvasArea.getComponent().addMouseMotionListener(new MouseAdapter() {
+        canvasArea.getCanvas().addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-            bottomToolbar.setPosition(e.getPoint());
+                bottomToolbar.setPosition(e.getPoint());
             }
         });
 

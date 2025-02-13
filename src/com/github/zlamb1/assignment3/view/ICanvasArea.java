@@ -19,6 +19,7 @@ public interface ICanvasArea extends ISwingComponent {
     void undo();
     void undoAll();
     void clear();
+    void clear(Dimension newSize);
 
     JComponent getCanvas();
     Dimension getCanvasSize();

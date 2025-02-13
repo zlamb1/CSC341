@@ -2,6 +2,9 @@ package com.github.zlamb1.assignment3.view;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicMenuUI;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -24,14 +27,52 @@ public class MenuBar extends JMenuBar {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMargin(new Insets(3, 10, 3, 10));
 
-        JMenuItem openImageMenuItem = makeMenuItem("Open Image");
+        JMenu newImageMenu = new JMenu("New Image");
+        setupMenuItem(newImageMenu);
+
+        JMenuItem newBlankImageMenuItem = new JMenuItem("New Blank Image");
+        setupMenuItem(newBlankImageMenuItem);
+
+        newBlankImageMenuItem.addActionListener(e -> {
+            canvasArea.clear();
+        });
+
+        JMenuItem newImageWithCustomSizeMenuItem = new JMenuItem("New Image With Custom Size");
+        setupMenuItem(newImageWithCustomSizeMenuItem);
+
+        newImageWithCustomSizeMenuItem.addActionListener(e -> {
+            JDialog dialog = new NewImageDialog((Frame) SwingUtilities.getWindowAncestor(this), canvasArea);
+            dialog.setModal(true);
+            dialog.setVisible(true);
+        });
+
+        newImageMenu.add(newBlankImageMenuItem);
+        newImageMenu.add(newImageWithCustomSizeMenuItem);
+
+        JMenuItem openImageMenuItem = new JMenuItem("Open Image");
+        setupMenuItem(openImageMenuItem);
         openImageMenuItem.addActionListener(e -> {
             promptOpenImage();
         });
 
+        fileMenu.add(newImageMenu);
         fileMenu.add(openImageMenuItem);
 
-        JMenuItem saveImageMenuItem = makeMenuItem("Save Image");
+        JSeparator separator = new JSeparator() {
+            @Override
+            protected void paintComponent(final Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setColor(getBackground());
+                g2d.drawLine(0, 0, getWidth(), 0);
+            }
+        };
+
+        separator.setBackground(Color.BLACK);
+
+        fileMenu.add(separator);
+
+        JMenuItem saveImageMenuItem = new JMenuItem("Save Image");
+        setupMenuItem(saveImageMenuItem);
         saveImageMenuItem.addActionListener(e -> {
             promptSaveImage();
         });
@@ -41,10 +82,9 @@ public class MenuBar extends JMenuBar {
         add(fileMenu);
     }
 
-    protected JMenuItem makeMenuItem(String label) {
-        JMenuItem item = new JMenuItem(label);
-        item.setMargin(new Insets(3, 5, 3, 5));
-        return item;
+    protected void setupMenuItem(JMenuItem menuItem) {
+        menuItem.setMargin(new Insets(0, 15, 0, 15));
+        menuItem.setFont(menuItem.getFont().deriveFont(12.0f));
     }
 
     protected void promptOpenImage() {
