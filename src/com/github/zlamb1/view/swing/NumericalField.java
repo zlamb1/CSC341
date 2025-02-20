@@ -1,6 +1,7 @@
 package com.github.zlamb1.view.swing;
 
 import com.github.zlamb1.view.listener.IValueListener;
+import com.github.zlamb1.view.utility.DimensionUtility;
 import com.github.zlamb1.view.utility.INumericalOperations;
 
 import javax.swing.*;
@@ -32,7 +33,12 @@ public class NumericalField<T extends Number> extends JPanel {
         this.numericalOperations = numericalOperations;
         this.value = defaultValue;
 
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setLayout(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.BOTH;
 
         textField = new JTextField(String.valueOf(defaultValue)) {
             @Override
@@ -88,27 +94,44 @@ public class NumericalField<T extends Number> extends JPanel {
         textField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                textField.setText(String.valueOf(value));
+            textField.setText(String.valueOf(value));
             }
         });
 
-        JPanel buttonPanel = new JPanel(new GridLayout());
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbc2 = new GridBagConstraints();
+        gbc2.gridx = 0;
+        gbc2.gridy = 0;
+        gbc2.fill = GridBagConstraints.VERTICAL;
+
+        gbc2.weightx = 0.5;
+        gbc2.weighty = 0.5;
 
         JButton incrementButton = new JButton("+");
-        incrementButton.addActionListener(e -> {
-            setValue(numericalOperations.increment(value));
-        });
+        incrementButton.addActionListener(e -> setValue(numericalOperations.increment(value)));
 
         JButton decrementButton = new JButton("-");
-        decrementButton.addActionListener(e -> {
-            setValue(numericalOperations.decrement(value));
-        });
+        decrementButton.addActionListener(e -> setValue(numericalOperations.decrement(value)));
 
-        buttonPanel.add(incrementButton);
-        buttonPanel.add(decrementButton);
+        int maxWidth = Math.max(incrementButton.getPreferredSize().width, decrementButton.getPreferredSize().width);
+        int maxHeight = Math.max(incrementButton.getPreferredSize().height, decrementButton.getPreferredSize().height);
+        int maxExtent = Math.max(maxWidth, maxHeight);
 
-        add(textField);
-        add(buttonPanel);
+        Dimension preferredSize = new Dimension(maxExtent, maxExtent);
+        incrementButton.setPreferredSize(preferredSize);
+        decrementButton.setPreferredSize(preferredSize);
+
+        buttonPanel.add(incrementButton, gbc2);
+
+        gbc2.gridx++;
+        buttonPanel.add(decrementButton, gbc2);
+
+        add(textField, gbc);
+
+        gbc.gridx++;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        add(buttonPanel, gbc);
     }
 
     public void addValueChangeListener(IValueListener<T> valueChangeListener) {
@@ -135,6 +158,10 @@ public class NumericalField<T extends Number> extends JPanel {
     }
 
     public void setValue(T value) {
+        if (validator != null) {
+            value = validator.validate(value);
+        }
+
         this.value = value;
         textField.setText(String.valueOf(value));
         revalidate();

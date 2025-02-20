@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Hand {
-    private final List<Card> cards = new ArrayList<>();
+    protected final List<Card> cards = new ArrayList<>();
 
     public void addCard(Card card) {
         if (card == null) {
@@ -14,6 +14,25 @@ public class Hand {
         }
 
         cards.add(card);
+    }
+
+    public Card getTopCard() {
+        assert !cards.isEmpty();
+        return cards.getLast();
+    }
+
+    public Card removeTopCard() {
+        assert !cards.isEmpty();
+        return cards.removeLast();
+    }
+
+    public void shuffle() {
+        for (int i = 0; i < cards.size(); i++) {
+            Card tmp = cards.get(i);
+            int index = (int) (Math.random() * cards.size());
+            cards.set(i, cards.get(index));
+            cards.set(index, tmp);
+        }
     }
 
     public Card getCardAt(int index) {
