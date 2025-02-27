@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BasicRace implements IRace {
+    protected IRaceView view;
+
     protected List<IRacer> racers = new ArrayList<>();
     protected int raceDistance;
 
     protected int maxNameLength;
 
-    public BasicRace(int raceDistance) {
+    public BasicRace(IRaceView view, int raceDistance) {
+        this.view = view;
         this.raceDistance = raceDistance;
     }
 
@@ -43,25 +46,15 @@ public class BasicRace implements IRace {
     @Override
     public void startRace() {
         if (racers.isEmpty()) {
-            System.out.println("There are no racers!");
+            view.drawEmptyRace(this);
             return;
         }
 
-        maxNameLength = 0;
-        for (IRacer racer : racers) {
-            maxNameLength = Math.max(maxNameLength, racer.getName().length());
+        while (getWinner() == null) {
+            view.drawRace(this);
         }
 
-        IRacer winner;
-        while ((winner = getWinner()) == null) {
-            for (IRacer racer : racers) {
-                racer.tick();
-                drawRacer(racer);
-            }
-            System.out.println();
-        }
-
-        System.out.println(winner.getName() + " wins!");
+        view.drawWinner(this);
     }
 
     @Override
@@ -73,22 +66,5 @@ public class BasicRace implements IRace {
         }
 
         return null;
-    }
-
-    protected void drawRacer(IRacer racer) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(String.format("%" + -(maxNameLength + 3) + "s", racer.getName()));
-        sb.append("[");
-
-        for (int i = 0; i <= raceDistance; i++) {
-            sb.append("-");
-            if (i == racer.getPosition()) {
-                sb.append("\033[38;5;238m");
-            }
-        }
-
-        sb.append("\033[0m]");
-        System.out.println(sb);
     }
 }
