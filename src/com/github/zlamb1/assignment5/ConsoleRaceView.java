@@ -11,17 +11,15 @@ public class ConsoleRaceView implements IRaceView {
     }
 
     @Override
-    public void drawRace(IRace race) {
+    public void drawRoundStart(IRace race) {
         maxNameLength = 0;
         for (IRacer racer : race.getRacers()) {
             maxNameLength = Math.max(maxNameLength, racer.getName().length());
         }
+    }
 
-        for (IRacer racer : race.getRacers()) {
-            racer.tick();
-            drawRacer(race, racer);
-        }
-
+    @Override
+    public void drawRoundEnd(IRace race) {
         System.out.println();
     }
 
@@ -30,7 +28,8 @@ public class ConsoleRaceView implements IRaceView {
         System.out.println(race.getWinner().getName() + " wins!");
     }
 
-    protected void drawRacer(IRace race, IRacer racer) {
+    @Override
+    public void drawRacer(IRace race, IRacer racer) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("%" + -(maxNameLength + 3) + "s", racer.getName()));

@@ -51,7 +51,12 @@ public class BasicRace implements IRace {
         }
 
         while (getWinner() == null) {
-            view.drawRace(this);
+            view.drawRoundStart(this);
+            for (IRacer racer : racers) {
+                racer.tick();
+                view.drawRacer(this, racer);
+            }
+            view.drawRoundEnd(this);
         }
 
         view.drawWinner(this);
