@@ -37,7 +37,7 @@ public class ConsoleRaceView implements IRaceView {
 
         for (int i = 0; i <= race.getRaceDistance(); i++) {
             sb.append("-");
-            if (i == racer.getPosition()) {
+            if (i == (int) racer.getPosition()) {
                 sb.append("\033[38;5;238m");
             }
         }

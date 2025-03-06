@@ -1,17 +1,18 @@
-package com.github.zlamb1.assignment5;
+package com.github.zlamb1.assignment6;
 
+import com.github.zlamb1.assignment5.IRace;
+import com.github.zlamb1.assignment5.IRaceView;
 import com.github.zlamb1.assignment5.racer.IRacer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicRace implements IRace {
+public class SpriteRace implements IRace {
     protected IRaceView view;
-
     protected List<IRacer> racers = new ArrayList<>();
     protected int raceDistance;
 
-    public BasicRace(IRaceView view, int raceDistance) {
+    public SpriteRace(IRaceView view, int raceDistance) {
         this.view = view;
         this.raceDistance = raceDistance;
     }
@@ -23,6 +24,7 @@ public class BasicRace implements IRace {
 
     @Override
     public void addRacer(IRacer racer) {
+        assert racer instanceof IDrawableRacer;
         racers.add(racer);
     }
 
