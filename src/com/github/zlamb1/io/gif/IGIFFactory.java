@@ -11,11 +11,15 @@ public interface IGIFFactory {
     IGIFFactory setExtensions(List<IGIFExtension> extensions);
     IGIFFactory addExtension(IGIFExtension extension);
 
+    IGIFFactory setImageDescriptors(List<GIFImageDescriptor> imageDescriptors);
+    IGIFFactory addImageDescriptor(GIFImageDescriptor imageDescriptor);
+
     GIF.GIFVersion getVersion();
     int getLogicalWidth();
     int getLogicalHeight();
     GIFGlobalColorTable getGlobalColorTable();
     List<IGIFExtension> getExtensions();
+    List<GIFImageDescriptor> getImageDescriptors();
 
     GIF buildGIF();
 }

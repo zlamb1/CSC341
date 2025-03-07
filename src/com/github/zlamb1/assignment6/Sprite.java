@@ -1,31 +1,35 @@
 package com.github.zlamb1.assignment6;
 
-import com.github.zlamb1.io.image.ImageStore;
-
+import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Sprite {
-    protected ImageStore imageStore;
+    protected List<Image> frames = new ArrayList<>();
     protected Dimension size = new Dimension(50, 50);
+    protected volatile int frame;
 
     protected double rotation = 0;
 
-    public Sprite(String path) {
-        this(path, new Dimension(50, 50));
+    protected volatile boolean animating = false;
+
+    public Sprite(List<Image> frames) {
+        this(frames, new Dimension(50, 50));
     }
 
-    public Sprite(String path, Dimension size) {
-        imageStore = new ImageStore(path);
+    public Sprite(List<Image> frames, Dimension size) {
         this.size = size;
-        try {
-            imageStore.getImage(size);
-        } catch (Exception exc) {
-            throw new SpriteLoadException("Failed to Load Sprite @: " + path, exc);
-        }
-    }
+        this.frames = frames;
 
-    public Sprite(ImageStore imageStore) {
-        this.imageStore = imageStore;
+        Timer timer = new Timer(50, e -> {
+            if (isAnimating() || frame != 0) {
+                frame = (frame + 1) % frames.size();
+            }
+        });
+
+        timer.setInitialDelay(0);
+        timer.start();
     }
 
     public Dimension getSize() {
@@ -34,8 +38,6 @@ public class Sprite {
 
     public void setSize(Dimension size) {
         this.size = size;
-        // preload image size
-        imageStore.getImage(size);
     }
 
     public void setSize(int width, int height) {
@@ -55,7 +57,15 @@ public class Sprite {
         int centerY = y - size.height / 2;
 
         Graphics2D g2d = (Graphics2D) g;
-        Image image = imageStore.getImage(size).getImage();
+        Image image = frames.get(frame);
         g2d.drawImage(image, centerX, centerY, null);
+    }
+
+    public synchronized boolean isAnimating() {
+        return animating;
+    }
+
+    public synchronized void setAnimating(boolean animating) {
+        this.animating = animating;
     }
 }

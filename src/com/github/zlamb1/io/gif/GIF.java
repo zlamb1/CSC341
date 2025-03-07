@@ -18,12 +18,14 @@ public class GIF {
     protected java.util.List<GIFImageDescriptor> imageDescriptors;
 
     public GIF(GIFVersion version, int logicalWidth, int logicalHeight,
-               GIFGlobalColorTable globalColorTable, java.util.List<IGIFExtension> extensions) {
+               GIFGlobalColorTable globalColorTable, java.util.List<IGIFExtension> extensions,
+               java.util.List<GIFImageDescriptor> imageDescriptors) {
         this.version = version;
         this.logicalWidth = logicalWidth;
         this.logicalHeight = logicalHeight;
         this.globalColorTable = globalColorTable;
         this.extensions = extensions;
+        this.imageDescriptors = imageDescriptors;
     }
 
     public GIFVersion getVersion() {

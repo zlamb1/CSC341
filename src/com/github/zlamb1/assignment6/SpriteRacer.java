@@ -12,10 +12,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SpriteRacer implements IDrawableRacer {
     protected IRacer racer;
     protected Sprite sprite;
+    protected boolean animateOnMoveOnly = false;
 
-    public SpriteRacer(IRacer racer, Sprite sprite) {
+    public SpriteRacer(IRacer racer, Sprite sprite, boolean animateOnMoveOnly) {
         this.racer = racer;
         this.sprite = sprite;
+        this.animateOnMoveOnly = animateOnMoveOnly;
+
+        sprite.setAnimating(!animateOnMoveOnly);
 
         setDelay(300);
     }
@@ -76,6 +80,10 @@ public class SpriteRacer implements IDrawableRacer {
         AtomicInteger elapsedDelay = new AtomicInteger();
         int period = 10;
 
+        if (animateOnMoveOnly && racer.getSpeed() != 0) {
+            sprite.setAnimating(true);
+        }
+
         try (ScheduledExecutorService executor = Executors.newScheduledThreadPool(1)) {
             ScheduledFuture<?> future = executor.scheduleAtFixedRate(() -> {
                 int currentElapsedDelay = elapsedDelay.addAndGet(period);
@@ -89,6 +97,10 @@ public class SpriteRacer implements IDrawableRacer {
 
             delay();
             future.cancel(true);
+
+            if (animateOnMoveOnly) {
+                sprite.setAnimating(false);
+            }
         }
 
         // update position to correct value in case something went wrong

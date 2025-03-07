@@ -11,6 +11,7 @@ public class GIFFactory implements IGIFFactory {
     protected GIFGlobalColorTable globalColorTable = null;
 
     protected List<IGIFExtension> extensions = new ArrayList<>();
+    protected List<GIFImageDescriptor> imageDescriptors = new ArrayList<>();
 
     @Override
     public IGIFFactory setVersion(GIF.GIFVersion version) {
@@ -49,6 +50,18 @@ public class GIFFactory implements IGIFFactory {
     }
 
     @Override
+    public IGIFFactory setImageDescriptors(List<GIFImageDescriptor> imageDescriptors) {
+        this.imageDescriptors = imageDescriptors;
+        return this;
+    }
+
+    @Override
+    public IGIFFactory addImageDescriptor(GIFImageDescriptor imageDescriptor) {
+        imageDescriptors.add(imageDescriptor);
+        return this;
+    }
+
+    @Override
     public GIF.GIFVersion getVersion() {
         return version;
     }
@@ -74,7 +87,12 @@ public class GIFFactory implements IGIFFactory {
     }
 
     @Override
+    public List<GIFImageDescriptor> getImageDescriptors() {
+        return List.of();
+    }
+
+    @Override
     public GIF buildGIF() {
-        return new GIF(version, logicalWidth, logicalHeight, globalColorTable, extensions);
+        return new GIF(version, logicalWidth, logicalHeight, globalColorTable, extensions, imageDescriptors);
     }
 }

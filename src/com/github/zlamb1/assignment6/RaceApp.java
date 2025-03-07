@@ -13,16 +13,13 @@ public class RaceApp {
     public RaceApp(IRace race) {
         this.race = race;
 
-        Sprite turtleSprite = new Sprite("com/github/zlamb1/assignment6/images/turtle.gif", new Dimension(75,50));
-
-        Sprite bunnySprite = new Sprite("com/github/zlamb1/assignment6/images/bunny.gif");
-        bunnySprite.setRotation(Math.toRadians(90));
-
-
         for (int i = 0; i < 3; i++) {
             IRacer turtleRacer = new TurtleRacer();
             turtleRacer.setName("Turtle #" + (i + 1));
-            race.addRacer(new SpriteRacer(turtleRacer, turtleSprite));
+            Sprite sprite = SpriteFactory.createSprite(
+                    "com/github/zlamb1/assignment6/images/turtle.gif", new Dimension(75, 50)
+            );
+            race.addRacer(new SpriteRacer(turtleRacer, sprite, false));
         }
 
         for (int i = 0; i < 3; i++) {
@@ -30,7 +27,10 @@ public class RaceApp {
             hareRacer.setName("Hare #" + (i + 1));
             hareRacer.setCurveDescentRate(1.05);
             hareRacer.setMaximumMultiplier(1.75);
-            race.addRacer(new SpriteRacer(hareRacer, bunnySprite));
+            Sprite sprite = SpriteFactory.createSprite(
+                "com/github/zlamb1/assignment6/images/bunny.gif", new Dimension(50, 50)
+            );
+            race.addRacer(new SpriteRacer(hareRacer, sprite, true));
         }
     }
 
